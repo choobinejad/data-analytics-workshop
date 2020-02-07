@@ -23,7 +23,7 @@ def generate_arabic_text():
 
 
 def set_env(name, value):
-    with open('~temp.env.json', 'rw') as f:
+    with open('~temp.env.json', 'w') as f:
         try:
             env = json.load(f)
         except json.decoder.JSONDecodeError:
