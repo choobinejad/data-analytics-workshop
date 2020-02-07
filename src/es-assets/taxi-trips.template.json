@@ -1,0 +1,55 @@
+{
+  "order": 0,
+  "index_patterns": [
+    "taxi-trips*"
+  ],
+  "settings": {
+    "index": {
+      "number_of_shards": "4",
+      "number_of_replicas": "1"
+    }
+  },
+  "aliases": {
+    "taxi-trips": {}
+  },
+  "mappings": {
+    "properties": {
+      "DOLocationPosition": {
+        "type": "geo_point"
+      },
+      "PULocationPosition": {
+        "type": "geo_point"
+      },
+      "passenger_count": {
+        "type": "float"
+      },
+      "ehail_fee": {
+        "type": "float"
+      },
+      "tolls": {
+        "type": "float"
+      },
+      "trip_distance": {
+        "type": "float"
+      },
+      "extra": {
+        "type": "float"
+      },
+      "fare_amount": {
+        "type": "float"
+      },
+      "improvement_surcharge": {
+        "type": "float"
+      },
+      "total_amount": {
+        "type": "float"
+      },
+      "tip_amount": {
+        "type": "float"
+      },
+      "mta_tax": {
+        "type": "float"
+      }
+    }
+  }
+}

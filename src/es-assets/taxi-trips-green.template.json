@@ -1,0 +1,26 @@
+{
+  "order": 10,
+  "index_patterns": [
+    "taxi-trips-green"
+  ],
+  "mappings": {
+    "properties": {
+      "lpep_dropoff_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "lpep_pickup_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "pickup_time_norm": {
+        "type": "alias",
+        "path": "lpep_pickup_datetime"
+      },
+      "dropoff_time_norm": {
+        "type": "alias",
+        "path": "lpep_dropoff_datetime"
+      }
+    }
+  }
+}

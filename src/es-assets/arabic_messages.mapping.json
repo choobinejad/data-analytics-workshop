@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "std_english": {
+          "type":      "standard"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "position": {
+        "type": "geo_point"
+      },
+      "message": {
+        "type":     "text",
+        "analyzer": "standard",
+        "fields": {
+          "arabic": {
+            "type":     "text",
+            "analyzer": "arabic"
+          }
+        }
+      }
+    }
+  }
+}

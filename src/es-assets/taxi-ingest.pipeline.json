@@ -1,0 +1,267 @@
+{
+    "description": "for parsing and enriching taxi records",
+    "processors": [
+      {
+        "date": {
+          "ignore_failure": true,
+          "field": "Pickup_DateTime",
+          "timezone": "{{ beat.timezone }}",
+          "formats": [
+            "yyyy-MM-dd HH:mm:ss"
+          ]
+        }
+      },
+      {
+        "set": {
+          "field": "event.dataset",
+          "value": "taxi-trips"
+        }
+      },
+      {
+        "set": {
+          "field": "_ingest.pipeline_version",
+          "value": "0.1"
+        }
+      },
+      {
+        "set": {
+          "field": "_ingest.workshop",
+          "value": "ml-0.1"
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.trip_type == 1",
+          "field": "meta.trip_type",
+          "value": "Street-hail",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.trip_type == 2",
+          "field": "meta.trip_type",
+          "value": "Dispatch",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.VendorID == 1",
+          "field": "meta.vendor_id",
+          "value": "Creative Mobile Technologies",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.VendorID == 2",
+          "field": "meta.vendor_id",
+          "value": "VeriFone Inc.",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 1",
+          "field": "meta.rate_code",
+          "value": "Standard rate",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 2",
+          "field": "meta.rate_code",
+          "value": "JFK",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 3",
+          "field": "meta.rate_code",
+          "value": "Newark",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 4",
+          "field": "meta.rate_code",
+          "value": "Nassau or Westchester",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 5",
+          "field": "meta.rate_code",
+          "value": "Negotiated fare",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.RatecodeID == 6",
+          "field": "meta.rate_code",
+          "value": "Group ride",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 1",
+          "field": "meta.payment_type",
+          "value": "credit-card",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 2",
+          "field": "meta.payment_type",
+          "value": "cash",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 3",
+          "field": "meta.payment_type",
+          "value": "no-charge",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 4",
+          "field": "meta.payment_type",
+          "value": "dispute",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 5",
+          "field": "meta.payment_type",
+          "value": "unknown",
+          "ignore_failure": true
+        }
+      },
+      {
+        "set": {
+          "if": "ctx.payment_type == 6",
+          "field": "meta.payment_type",
+          "value": "voided-trip",
+          "ignore_failure": true
+        }
+      },
+      {
+        "enrich": {
+          "policy_name": "location-zone-info",
+          "field": "PULocationID",
+          "target_field": "meta.pickup",
+          "max_matches": "1",
+          "ignore_missing": true
+        }
+      },
+      {
+        "enrich": {
+          "policy_name": "location-zone-info",
+          "field": "DOLocationID",
+          "target_field": "meta.dropoff",
+          "max_matches": "1",
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "passenger_count",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "ehail_fee",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "tolls_amount",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "trip_distance",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "extra",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "fare_amount",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "improvement_surcharge",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "total_amount",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "tip_amount",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      },
+      {
+        "convert": {
+          "field": "mta_tax",
+          "type": "float",
+          "ignore_failure": true,
+          "ignore_missing": true
+        }
+      }
+    ],
+    "on_failure": [
+      {
+        "set": {
+          "field": "_index",
+          "value": "failed-{{ _index }}"
+        }
+      }
+    ]
+  }

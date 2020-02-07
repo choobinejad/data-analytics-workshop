@@ -1,0 +1,10 @@
+PUT /_enrich/policy/location-zone-info
+{
+    "match": {
+        "indices": "taxi-zones",
+        "match_field": "LocationID",
+        "enrich_fields": ["Borough", "Zone", "service_zone"]
+    }
+}
+
+POST /_enrich/policy/location-zone-info/_execute

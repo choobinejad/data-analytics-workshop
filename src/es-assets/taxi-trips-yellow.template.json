@@ -1,0 +1,26 @@
+{
+  "order": 10,
+  "index_patterns": [
+    "taxi-trips-yellow"
+  ],
+  "mappings": {
+    "properties": {
+      "tpep_dropoff_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "tpep_pickup_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "pickup_time_norm": {
+        "type": "alias",
+        "path": "tpep_pickup_datetime"
+      },
+      "dropoff_time_norm": {
+        "type": "alias",
+        "path": "tpep_dropoff_datetime"
+      }
+    }
+  }
+}

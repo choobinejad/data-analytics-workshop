@@ -1,0 +1,23 @@
+{
+  "order": 20,
+  "index_patterns": [
+    "transform_summary_driver",
+    "transform-summary-driver"
+  ],
+  "mappings": {
+    "properties": {
+      "pickup_time_norm": {
+        "properties": {
+          "max": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "min": {
+            "type": "date",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          }
+        }
+      }
+    }
+  }
+}

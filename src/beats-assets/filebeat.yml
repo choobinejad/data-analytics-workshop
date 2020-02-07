@@ -1,0 +1,245 @@
+cloud.auth: elastic:zLfuLqm6Vam2cxbdpXw7JlCC
+cloud.id: ml-workshop-2:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDI0NzViOWY3M2UyMzRlYTBiYzkxY2MwZGQ1MDU3OWJiJDI2NDdhNTQyODYwMDRlYTJhMTA4MzhhMTViZjc4OWI1
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+  reload.period: 10s
+filebeat.inputs:
+- enabled: true
+  index: taxi-trips-yellow
+  paths:
+  - ./data/yellow_tripdata_*
+  pipeline: taxi-ingest
+  processors:
+  - drop_event:
+      when:
+        contains:
+          message: VendorID,tpep_pickup_datetime,tpep_dropoff_datetime,passenger_count,trip_distance,RatecodeID
+  - decode_csv_fields:
+      fail_on_error: true
+      fields:
+        message: message
+      ignore_missing: false
+      overwrite_keys: true
+      separator: ','
+      trim_leading_space: false
+  - extract_array:
+      fail_on_error: false
+      field: message
+      ignore_missing: false
+      mappings:
+        DOLocationID: 8
+        PULocationID: 7
+        RatecodeID: 5
+        VendorID: 0
+        extra: 11
+        fare_amount: 10
+        improvement_surcharge: 15
+        mta_tax: 12
+        passenger_count: 3
+        payment_type: 9
+        store_and_fwd_flag: 6
+        tip_amount: 13
+        tolls_amount: 14
+        total_amount: 16
+        tpep_dropoff_datetime: 2
+        tpep_pickup_datetime: 1
+        trip_distance: 4
+  - script:
+      id: generate_positions
+      lang: javascript
+      source: "function process(event) {\n  event.Put(\"DOLocationPosition\", {});\n\
+        \  event.Put(\"PULocationPosition\", {});\n  event.Put(\"DOLocationPosition.lat\"\
+        , Math.random() * (40.603767 - 40.806732) + 40.806732);\n  event.Put(\"DOLocationPosition.lon\"\
+        , Math.random() * (-73.991281 - -73.745071) + -73.745071);\n  event.Put(\"\
+        PULocationPosition.lat\", Math.random() * (40.603767 - 40.806732) + 40.806732);\n\
+        \  event.Put(\"PULocationPosition.lon\", Math.random() * (-73.991281 - -73.745071)\
+        \ + -73.745071);\n  event.Put(\"DriverId\", Math.floor(Math.random() * 500));\n\
+        \  event.Put(\"PassengerId\", Math.floor(Math.random() * 500));\n}\n"
+  type: log
+- enabled: true
+  index: taxi-trips-green
+  paths:
+  - ./data/green_tripdata_*
+  pipeline: taxi-ingest
+  processors:
+  - drop_event:
+      when:
+        contains:
+          message: VendorID,lpep_pickup_datetime,lpep_dropoff_datetime,store_and_fwd_flag,RatecodeID,PULocationID
+  - decode_csv_fields:
+      fail_on_error: true
+      fields:
+        message: message
+      ignore_missing: false
+      overwrite_keys: true
+      separator: ','
+      trim_leading_space: false
+  - extract_array:
+      fail_on_error: false
+      field: message
+      ignore_missing: false
+      mappings:
+        DOLocationID: 6
+        PULocationID: 5
+        RatecodeID: 4
+        VendorID: 0
+        congestion_surcharge: 19
+        ehail_fee: 14
+        extra: 10
+        fare_amount: 9
+        improvement_surcharge: 15
+        lpep_dropoff_datetime: 2
+        lpep_pickup_datetime: 1
+        mta_tax: 11
+        passenger_count: 7
+        payment_type: 17
+        store_and_fwd_flag: 3
+        tip_amount: 12
+        tolls_amount: 13
+        total_amount: 16
+        trip_distance: 8
+        trip_type: 18
+  - script:
+      id: generate_positions
+      lang: javascript
+      source: "function process(event) {\n  event.Put(\"DOLocationPosition\", {});\n\
+        \  event.Put(\"PULocationPosition\", {});\n  event.Put(\"DOLocationPosition.lat\"\
+        , Math.random() * (40.603767 - 40.806732) + 40.806732);\n  event.Put(\"DOLocationPosition.lon\"\
+        , Math.random() * (-73.991281 - -73.745071) + -73.745071);\n  event.Put(\"\
+        PULocationPosition.lat\", Math.random() * (40.603767 - 40.806732) + 40.806732);\n\
+        \  event.Put(\"PULocationPosition.lon\", Math.random() * (-73.991281 - -73.745071)\
+        \ + -73.745071);\n  event.Put(\"DriverId\", Math.floor(Math.random() * 500));\n\
+        \  event.Put(\"PassengerId\", Math.floor(Math.random() * 500));\n}\n"
+  type: log
+- enabled: true
+  index: taxi-trips-fhv
+  paths:
+  - ./data/fhv_tripdata_*
+  pipeline: taxi-ingest
+  processors:
+  - drop_event:
+      when:
+        contains:
+          message: Dispatching_base_num,Pickup_DateTime,DropOff_datetime,PUlocationID,DOlocationID
+  - decode_csv_fields:
+      fail_on_error: true
+      fields:
+        message: message
+      ignore_missing: false
+      overwrite_keys: true
+      separator: ','
+      trim_leading_space: false
+  - extract_array:
+      fail_on_error: false
+      field: message
+      ignore_missing: false
+      mappings:
+        DOlocationID: 4
+        Dispatching_base_num: 0
+        DropOff_datetime: 2
+        PUlocationID: 3
+        Pickup_DateTime: 1
+        SR_Flag: 5
+  - if:
+      not:
+        regexp:
+          Pickup_DateTime: 201[789]-.*
+    then:
+    - add_tags:
+        tags:
+        - malformed_Pickup_DateTime
+    - rename:
+        fail_on_error: true
+        fields:
+        - from: Pickup_DateTime
+          to: malformed_Pickup_DateTime
+        ignore_missing: false
+  - if:
+      not:
+        regexp:
+          DropOff_datetime: 201[789]-.*
+    then:
+    - add_tags:
+        tags:
+        - malformed_DropOff_datetime
+    - rename:
+        fail_on_error: true
+        fields:
+        - from: DropOff_datetime
+          to: malformed_DropOff_datetime
+        ignore_missing: false
+  - script:
+      id: generate_positions
+      lang: javascript
+      source: "function process(event) {\n  event.Put(\"DOLocationPosition\", {});\n\
+        \  event.Put(\"PULocationPosition\", {});\n  event.Put(\"DOLocationPosition.lat\"\
+        , Math.random() * (40.603767 - 40.806732) + 40.806732);\n  event.Put(\"DOLocationPosition.lon\"\
+        , Math.random() * (-73.991281 - -73.745071) + -73.745071);\n  event.Put(\"\
+        PULocationPosition.lat\", Math.random() * (40.603767 - 40.806732) + 40.806732);\n\
+        \  event.Put(\"PULocationPosition.lon\", Math.random() * (-73.991281 - -73.745071)\
+        \ + -73.745071);\n  event.Put(\"DriverId\", Math.floor(Math.random() * 500));\n\
+        \  event.Put(\"PassengerId\", Math.floor(Math.random() * 500));\n}\n"
+  type: log
+- enabled: true
+  index: taxi-trips-fhvhv
+  paths:
+  - ./data/fhvhv_tripdata_*
+  pipeline: taxi-ingest
+  processors:
+  - drop_event:
+      when:
+        contains:
+          message: hvfhs_license_num,dispatching_base_num,pickup_datetime,dropoff_datetime,PULocationID,DOLocationID
+  - decode_csv_fields:
+      fail_on_error: true
+      fields:
+        message: message
+      ignore_missing: false
+      overwrite_keys: true
+      separator: ','
+      trim_leading_space: false
+  - extract_array:
+      fail_on_error: false
+      field: message
+      ignore_missing: false
+      mappings:
+        DOLocationID: 5
+        PULocationID: 4
+        SR_Flag: 6
+        dispatching_base_num: 1
+        dropoff_datetime: 3
+        hvfhs_license_num: 0
+        pickup_datetime: 2
+  - script:
+      id: generate_positions
+      lang: javascript
+      source: "function process(event) {\n  event.Put(\"DOLocationPosition\", {});\n\
+        \  event.Put(\"PULocationPosition\", {});\n  event.Put(\"DOLocationPosition.lat\"\
+        , Math.random() * (40.603767 - 40.806732) + 40.806732);\n  event.Put(\"DOLocationPosition.lon\"\
+        , Math.random() * (-73.991281 - -73.745071) + -73.745071);\n  event.Put(\"\
+        PULocationPosition.lat\", Math.random() * (40.603767 - 40.806732) + 40.806732);\n\
+        \  event.Put(\"PULocationPosition.lon\", Math.random() * (-73.991281 - -73.745071)\
+        \ + -73.745071);\n  event.Put(\"DriverId\", Math.floor(Math.random() * 500));\n\
+        \  event.Put(\"PassengerId\", Math.floor(Math.random() * 500));\n}\n"
+  type: log
+filebeat.modules:
+- module: system
+monitoring.elasticsearch:
+monitoring.enabled: true
+output.elasticsearch:
+  bulk_max_size: 2000
+  compression_level: 9
+  worker: 24
+processors:
+- add_host_metadata:
+- add_cloud_metadata:
+- add_docker_metadata:
+- add_kubernetes_metadata:
+queue.mem:
+  events: 96000
+  flush.min_events: 512
+  flush.timeout: 2s
+setup.template.settings:
+  index.number_of_replicas: 1
+  index.number_of_shards: 3

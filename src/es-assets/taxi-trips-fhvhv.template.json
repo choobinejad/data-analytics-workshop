@@ -1,0 +1,26 @@
+{
+  "order": 10,
+  "index_patterns": [
+    "taxi-trips-fhvhv"
+  ],
+  "mappings": {
+    "properties": {
+      "pickup_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "dropoff_datetime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "pickup_time_norm": {
+        "type": "alias",
+        "path": "pickup_datetime"
+      },
+      "dropoff_time_norm": {
+        "type": "alias",
+        "path": "dropoff_datetime"
+      }
+    }
+  }
+}
