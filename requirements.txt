@@ -1,0 +1,6 @@
+elasticsearch
+requests
+fire
+pyyaml
+console_progressbar
+termcolor

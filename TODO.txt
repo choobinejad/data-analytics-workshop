@@ -1,0 +1,67 @@
+#TODO  seed data with data visualizaer  & create index patterns
+#TODO check mapping for yellow,  fhv, and  hvfhv
+#TODO put mapping explicitly to make the workshop foolproof
+
+#TODO add geo points for drop off and pick up based on DO PU zones and trip distance
+#TODO add messages in various languages
+#TODO add taxi-trips to logs UI
+#TODO create taxi-trips kibana index pattern
+#TODO explicitly map the PU timestamp to @timestamp
+
+create simple outliers job
+switch to advanced mode, and allow more memory
+{
+  "source": {
+    "index": "taxi-trips"
+  },
+  "dest": {
+    "index": "taxi-trips-outliers"
+  },
+  "analyzed_fields": {
+    "excludes": []
+  },
+  "analysis": {
+    "outlier_detection": {}
+  },
+  "model_memory_limit": "200mb"
+}
+
+#TODO add url to document and render in Kibana
+#TODO yum  install vim,  git,  python3
+#TODO python3 CLI for putting the configurations and dashboards
+#TODO add text with AR/PF analyzer
+
+yum install filebeat
+
+./filebeat-7.5.1-darwin-x86_64/filebeat run -c ./src/beats-assets/filebeat.yml -e
+
+manual:  create `taxi-trips` and `arabic*` index patterns
+
+
+upload geojson file from NYC  data
+index name: nyc-facilities-db
+
+
+set up the messages - taxis enrichment
+
+make the taxi analysis map
+
+set t axi-trips index patterna sd efault
+
+explore malformed data tagged by filebeat IN LENS
+
+
+
+
+
+
+
+install git, htop, python3, wget
+git pull myrepo
+pip install -r requirements.txt
+
+
+
+
+
+python main.py configure ingest
